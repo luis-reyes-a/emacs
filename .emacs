@@ -4,7 +4,8 @@
 (add-to-list 'custom-theme-load-path "D:/emacs/themes/everforest/")
 (add-to-list 'custom-theme-load-path "D:/emacs/themes/gruvbox/")
 
-(load-theme 'luis t)
+;;(load-theme 'luis t)
+(load-theme 'gruvbox-dark-hard t)
 
 ;;(setq find-program "~/emacs/find.exe")
 (setq find-program (expand-file-name (concat (file-name-as-directory "~") "emacs/find.exe")))
@@ -18,7 +19,7 @@
 
 (setq initial-major-mode 'text-mode) ;; by default it's lisp mode...
 
-(defcustom luis-project-directory "~/"
+(defcustom luis-project-directory "~"
   "Non-nil means automatically frobnicate all buffers."
   :type 'string)
 
@@ -59,10 +60,12 @@
 (ido-mode t)
 (defun bind-ido-keys ()
   "Keybindings for ido mode."
-  (define-key ido-completion-map        (kbd "C-j") 'ido-next-match)
-  (define-key ido-completion-map        (kbd "C-S-j") 'ido-prev-match)
-  (define-key ido-completion-map        (kbd "M-j") 'ido-prev-match)
   (define-key ido-completion-map        [C-backspace]     'ido-delete-backward-updir)
+
+  (define-key ido-completion-map        (kbd "<C-return>") 'ido-select-text)
+  (define-key ido-completion-map        (kbd "<tab>")      'ido-complete)
+  (define-key ido-completion-map        (kbd "<C-tab>")    'ido-next-match)
+  (define-key ido-completion-map        (kbd "<S-tab>")    'ido-prev-match)
   )
 
 (add-hook 'ido-setup-hook #'bind-ido-keys)
@@ -73,10 +76,13 @@
 (global-set-key (kbd "C-s") 'save-buffer)
 (global-set-key (kbd "M-s") 'save-some-buffers)
 
-(global-set-key (kbd "C-o") 'ido-find-file)
-(global-set-key (kbd "M-o") 'ff-find-other-file)
-(global-set-key (kbd "C-p") 'luis-project-find-relevant-file)
-(global-set-key (kbd "M-p") 'luis-project-find-relevant-buffer)
+(global-set-key (kbd "C-o")   'ido-find-file)
+(global-set-key (kbd "M-o")   'ff-find-other-file)
+(global-set-key (kbd "C-p")   'luis-project-find-relevant-file)
+(global-set-key (kbd "M-p")   'luis-project-find-relevant-buffer)
+(global-set-key (kbd "C-M-p") 'luis-set-project-directory)
+
+(setq luis-project-directory (pwd))
 (global-set-key (kbd "C-b") 'ido-switch-buffer)
 (global-set-key (kbd "C-;") 'other-window)
 
@@ -90,6 +96,10 @@
 
 (global-set-key (kbd "<C-home>") 'back-to-indentation-or-beginning)
 
+(global-set-key (kbd "<C-prior>") 'previous-error)
+(global-set-key (kbd "<C-next>")      'next-error)
+
+
 (global-set-key (kbd "C-j") 'dabbrev-expand) ;; best emacs command by far
 (global-set-key (kbd "C-,") '(lambda () (interactive)(insert "_")))
 (global-set-key (kbd "C-.") '(lambda () (interactive)(insert "->")))
@@ -98,10 +108,20 @@
 (global-set-key [C-backspace]   '*backspace-word) ;;sub words
 (global-set-key [C-delete]      '*delete-word)
 
+
+(global-set-key [M-backspace]   '*backspace-word) 
+(global-set-key [M-delete]      '*delete-word)
+
+
 (global-set-key (kbd "<home>")   'luis-back-to-indentation-or-beginning)
 ;; (global-set-key (kbd "<S-home>") 'luis-back-to-indentation-or-beginning-selection) ;; not sure why this doesn't work
 (global-set-key (kbd "<C-home>") 'luis-back-to-indentation-or-beginning)   
 (global-set-key (kbd "<C-end>")  'move-end-of-line)
+
+;; (global-set-key (kbd "<C-tab>")   'previous-buffer)   
+;; (global-set-key (kbd "<C-S-tab>")     'next-buffer)
+
+(global-set-key (kbd "<C-tab>") 'ido-switch-buffer)
 
 
 (global-set-key (kbd "C-f") 'isearch-forward)
@@ -111,11 +131,10 @@
 
 (global-set-key (kbd "M-i") 'luis-open-braces)
 (global-set-key (kbd "M-k") 'luis-delete-line) ;; used to be kill-sentence
+(global-set-key (kbd "M-l") 'luis-duplicate-line) 
+
 
 (global-set-key (kbd "C-\\") 'luis-select-surrounding-scope)
-
-(global-set-key (kbd "M-p") 'scroll-down-command)
-(global-set-key (kbd "M-n") 'scroll-up-command)
 
 (global-set-key (kbd "C-0")  'delete-window)
 (global-set-key (kbd "C-1")  'delete-other-windows)
@@ -160,7 +179,17 @@
   (print (directory-files-recursively luis-project-directory ".*\\.\\(cpp\\|h\\|c\\|hpp\\|txt\\)") (current-buffer))
   )
                    
-  
+(defun luis-duplicate-line()
+  (interactive)
+  (let ((init_col (current-column)))
+
+    (move-beginning-of-line 1)
+    (kill-line)
+    (yank)
+    (open-line 1)
+    (next-line 1)
+    (yank)
+    (move-to-column init_col)))
 
 (defun luis-back-to-indentation-or-beginning () (interactive)
        (if (= (point) (progn (back-to-indentation) (point)))
@@ -222,7 +251,12 @@ This command does not push text to `kill-ring'."
       ;; (switch-to-buffer buf)
       (find-file path)
       
-))
+      ))
+
+(defun luis-set-project-directory () (interactive)
+       (setq luis-project-directory (read-from-minibuffer (concat "Change Project Directory from " luis-project-directory " to: ")))
+       (message "Project Directory is now %s" luis-project-directory)
+       )
 
 
 
@@ -242,10 +276,11 @@ This command does not push text to `kill-ring'."
   (previous-line)
   (indent-for-tab-command))
 
-
-
+(require 'cc-mode)
+(setq c-default-style "linux" c-basic-offset 4)
+(c-set-offset (quote cpp-macro) 0 nil)
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (font-lock-add-keywords 'c++-mode '(("defer" . font-lock-keyword-face)))
-
 
 ;;NOTE this was taken from Handmade Hero, thank you Casey!
 (require 'compile)
@@ -275,21 +310,21 @@ This command does not push text to `kill-ring'."
 ;; NOTE on newer versions of compiler may also say 'fatal error' instead of just error...
 
 
-;; (add-to-list
-;;  'compilation-error-regexp-alist
-;;   (list (concat
-;;         "^"
-;;         "\\([^(]+\\)"                                ; 1
-;;         "(\\([0-9]+\\)\\(?:,\\([0-9]+\\)\\)?) ?: "   ; 2,(3)
-;;         "\\(\\(?:error\\|\\(warning\\)\\) [^ :]+\\)" ; 4,(5)
-;;         )
-;;        1                          ;FILE
-;;        2                          ;LINE
-;;        3                          ;COLUMN
-;;        '(5)                       ;ERROR is warning if 5 matched, else error.
-;;        nil                        ;HYPERLINK
-;;        '(4 font-lock-comment-face)
-;;        ) )
+(add-to-list
+ 'compilation-error-regexp-alist
+  (list (concat
+        "^"
+        "\\([^(]+\\)"                                ; 1
+        "(\\([0-9]+\\)\\(?:,\\([0-9]+\\)\\)?) ?: "   ; 2,(3)
+        "\\(\\(?:error\\|\\(warning\\)\\) [^ :]+\\)" ; 4,(5)
+        )
+       1                          ;FILE
+       2                          ;LINE
+       3                          ;COLUMN
+       '(5)                       ;ERROR is warning if 5 matched, else error.
+       nil                        ;HYPERLINK
+       '(4 font-lock-comment-face)
+       ) )
 
 (defun find-project-directory-recursive ()
   "Recursively search for a makefile."
@@ -327,9 +362,12 @@ This command does not push text to `kill-ring'."
   (if (find-project-directory) (compile "build.bat"))
   (other-window 1))
 
+(add-hook 'prog-mode-hook 'superword-mode)
+
 
 (defun my-cc-mode-common-hook ()
   "Setup common utilities for all C-like modes."
+  ;; (superword-mode)
 
   ;; (adaptive-wrap-prefix-mode)
   ;; (which-function-mode)
@@ -395,3 +433,16 @@ With argument, do this that many times.
 This command does not push text to `kill-ring'."
   (interactive "p")
   (*delete-word (- arg)))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("d445c7b530713eac282ecdeea07a8fa59692c83045bf84dd112dd738c7bcad1d" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
