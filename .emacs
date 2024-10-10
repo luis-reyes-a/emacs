@@ -1,16 +1,71 @@
-(add-to-list 'load-path "D:/emacs/lisp/")
-(add-to-list 'custom-theme-load-path "D:/emacs/themes/")
-(add-to-list 'custom-theme-load-path "D:/emacs/themes/emacs-color-theme-solarized/")
-(add-to-list 'custom-theme-load-path "D:/emacs/themes/everforest/")
-(add-to-list 'custom-theme-load-path "D:/emacs/themes/gruvbox/")
+(add-to-list 'load-path "~/emacs/lisp/")
+
+(add-to-list 'custom-theme-load-path "~/emacs/themes/")
+(add-to-list 'custom-theme-load-path "~/emacs/themes/emacs-color-theme-solarized/")
+(add-to-list 'custom-theme-load-path "~/emacs/themes/everforest/")
+(add-to-list 'custom-theme-load-path "~/emacs/themes/gruvbox/")
 
 ;;(load-theme 'luis t)
-(load-theme 'gruvbox-dark-hard t)
+;; (load-theme 'gruvbox-dark-hard t)
+(load-theme 'deeper-blue t)
 
 ;;(setq find-program "~/emacs/find.exe")
 (setq find-program (expand-file-name (concat (file-name-as-directory "~") "emacs/find.exe")))
+(setq grep-find-template
+      "find <D> <X> -type f -name '*.cpp' -exec grep <C> -nH -e <R> \\{\\} +")
 
-;;(expand-file-name "~")
+;;(use-package scroll-on-jump
+ ;; :config
+ ;;(setq scroll-on-jump-duration 0.6))
+
+;; find-exe usuage
+;; Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
+;; 
+;; Default path is the current directory; default expression is -print.
+;; Expression may consist of: operators, options, tests, and actions.
+;; 
+;; Operators (decreasing precedence; -and is implicit where no others are given):
+      ;; ( EXPR )   ! EXPR   -not EXPR   EXPR1 -a EXPR2   EXPR1 -and EXPR2
+      ;; EXPR1 -o EXPR2   EXPR1 -or EXPR2   EXPR1 , EXPR2
+;; 
+;; Positional options (always true):
+      ;; -daystart -follow -nowarn -regextype -warn
+;; 
+;; Normal options (always true, specified before other expressions):
+      ;; -depth -files0-from FILE -maxdepth LEVELS -mindepth LEVELS
+       ;; -mount -noleaf -xdev -ignore_readdir_race -noignore_readdir_race
+;; 
+;; Tests (N can be +N or -N or N):
+      ;; -amin N -anewer FILE -atime N -cmin N -cnewer FILE -context CONTEXT
+      ;; -ctime N -empty -false -fstype TYPE -gid N -group NAME -ilname PATTERN
+      ;; -iname PATTERN -inum N -iwholename PATTERN -iregex PATTERN
+      ;; -links N -lname PATTERN -mmin N -mtime N -name PATTERN -newer FILE
+      ;; -nouser -nogroup -path PATTERN -perm [-/]MODE -regex PATTERN
+      ;; -readable -writable -executable
+      ;; -wholename PATTERN -size N[bcwkMG] -true -type [bcdpflsD] -uid N
+      ;; -used N -user NAME -xtype [bcdpfls]
+;; 
+;; Actions:
+      ;; -delete -print0 -printf FORMAT -fprintf FILE FORMAT -print
+      ;; -fprint0 FILE -fprint FILE -ls -fls FILE -prune -quit
+      ;; -exec COMMAND ; -exec COMMAND {} + -ok COMMAND ;
+      ;; -execdir COMMAND ; -execdir COMMAND {} + -okdir COMMAND ;
+;; 
+;; Other common options:
+      ;; --help                   display this help and exit
+      ;; --version                output version information and exit
+;; 
+;; Valid arguments for -D:
+;; exec, opt, rates, search, stat, time, tree, all, help
+;; Use '-D help' for a description of the options, or see find(1)
+;; 
+;; Please see also the documentation at https://www.gnu.org/software/findutils/.
+;; You can report (and track progress on fixing) bugs in the "find"
+;; program via the GNU findutils bug-reporting page at
+;; https://savannah.gnu.org/bugs/?group=findutils or, if
+;; you have no web access, by sending email to <bug-findutils@gnu.org>.
+
+
 
 (setq kill-ring-max        8)
 (setq mark-ring-max        3)
@@ -35,7 +90,8 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized)) ; maximize on start
 (show-paren-mode t)
 (set-frame-parameter nil 'background-mode 'dark)
-(global-auto-revert-mode 1) ;; always reload from disk, don't ask
+
+(global-auto-revert-mode t)  ;; always reload from disk, don't ask
 
 (setq completions-format 'vertical)
 (setq-default line-spacing 2)
@@ -78,8 +134,10 @@
 
 (global-set-key (kbd "C-o")   'ido-find-file)
 (global-set-key (kbd "M-o")   'ff-find-other-file)
-(global-set-key (kbd "C-p")   'luis-project-find-relevant-file)
-(global-set-key (kbd "M-p")   'luis-project-find-relevant-buffer)
+;; (global-set-key (kbd "C-p")   'luis-project-find-relevant-file)
+;; (global-set-key (kbd "M-p")   'luis-project-find-relevant-buffer)
+(global-set-key (kbd "C-p")   'git-find-file)
+
 (global-set-key (kbd "C-M-p") 'luis-set-project-directory)
 
 (setq luis-project-directory (pwd))
@@ -100,6 +158,7 @@
 (global-set-key (kbd "<C-next>")      'next-error)
 
 
+
 (global-set-key (kbd "C-j") 'dabbrev-expand) ;; best emacs command by far
 (global-set-key (kbd "C-,") '(lambda () (interactive)(insert "_")))
 (global-set-key (kbd "C-.") '(lambda () (interactive)(insert "->")))
@@ -113,7 +172,7 @@
 (global-set-key [M-delete]      '*delete-word)
 
 
-(global-set-key (kbd "<home>")   'luis-back-to-indentation-or-beginning)
+;;(global-set-key (kbd "<home>")   'luis-back-to-indentation-or-beginning)
 ;; (global-set-key (kbd "<S-home>") 'luis-back-to-indentation-or-beginning-selection) ;; not sure why this doesn't work
 (global-set-key (kbd "<C-home>") 'luis-back-to-indentation-or-beginning)   
 (global-set-key (kbd "<C-end>")  'move-end-of-line)
@@ -253,10 +312,36 @@ This command does not push text to `kill-ring'."
       
       ))
 
+
 (defun luis-set-project-directory () (interactive)
        (setq luis-project-directory (read-from-minibuffer (concat "Change Project Directory from " luis-project-directory " to: ")))
        (message "Project Directory is now %s" luis-project-directory)
        )
+
+
+
+
+;; this fucking crap doesn't work,
+;; (defun luis-find-in-files (&optional dir allowed-exts)
+  ;; (interactive)
+  ;; (if (not dir)
+      ;; (setq dir "."))
+
+  ;; (if (not allowed-exts)
+      ;; (setq allowed-exts '("h" "cpp" "c" "txt" "hpp")))
+
+  ;; (let*
+     ;; (
+      ;; (file-ext-string (mapconcat (lambda (x)
+          ;; (concat " -name '*." x "'")) allowed-exts " -o ")
+              ;; )
+      
+      ;; )
+
+     ;; (shell-command (concat find-program " " dir " -type f" file-ext-string " -exec grep -nH --null -f struct {} ;") (get-buffer "*grep*")))
+  ;; )
+      
+
 
 
 
@@ -301,7 +386,45 @@ This command does not push text to `kill-ring'."
       (end-of-line)
       (kill-ring-save (region-beginning) (region-end))
       (message "Copied line"))
-  ))
+    ))
+
+
+(defun rgc-find-git-root ()
+  "Find git root directory from current directory."
+  (interactive)
+  (rgc-member-directory default-directory
+                        "~/"
+                        (lambda (x)
+                          (file-exists-p (concat x ".git")))))
+
+(defun rgc-member-directory (from to fun &optional if-nil)
+  "Returns a directory between `from' and `to' for wich `fun'
+returns non nil. The search begins on the child 'from' and goes
+up till 'to', or '/'. If `if-nil' is provided, in case of not
+finding any suitable directory, it returns it instead of `to'"
+  (when (not (file-exists-p from))
+    (return))
+  (if (or (equal (expand-file-name from) (expand-file-name to))
+          (equal from "/")) ;how to do it multiplatform?
+      (or if-nil to)
+    (if (funcall fun from) from
+      (rgc-member-directory (expand-file-name (concat from "/../")) ;how to do it multiplatform?
+                            to
+                            fun
+                            if-nil))))
+
+(defun git-find-file ()
+  (interactive)
+  (let* ((git-root (rgc-find-git-root))
+         (ido-enable-regexp nil)
+         (repo-files (split-string
+                      (with-temp-buffer
+                        (cd git-root)
+                        (shell-command "git ls-files" t)
+                        (buffer-string)))))
+    (find-file (concat git-root "/"
+                (ido-completing-read "file: " repo-files t t)))))
+(global-set-key (kbd "C-x f") 'find-file-in-repo)
 
 
 ;; VS 2019
@@ -439,7 +562,7 @@ This command does not push text to `kill-ring'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("d445c7b530713eac282ecdeea07a8fa59692c83045bf84dd112dd738c7bcad1d" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default)))
+   '("98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "d445c7b530713eac282ecdeea07a8fa59692c83045bf84dd112dd738c7bcad1d" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
