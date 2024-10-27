@@ -152,7 +152,7 @@
 (global-set-key (kbd "C-q") 'query-replace)
 (global-set-key (kbd "M-q") 'query-replace)
 
-(global-set-key (kbd "<C-home>") 'back-to-indentation-or-beginning)
+
 
 (global-set-key (kbd "<C-prior>") 'previous-error)
 (global-set-key (kbd "<C-next>")      'next-error)
@@ -173,9 +173,12 @@
 
 
 ;;(global-set-key (kbd "<home>")   'luis-back-to-indentation-or-beginning)
+(global-set-key (kbd "<home>")  'back-to-indentation)
 ;; (global-set-key (kbd "<S-home>") 'luis-back-to-indentation-or-beginning-selection) ;; not sure why this doesn't work
-(global-set-key (kbd "<C-home>") 'luis-back-to-indentation-or-beginning)   
+(global-set-key (kbd "<C-home>") 'move-beginning-of-line)
 (global-set-key (kbd "<C-end>")  'move-end-of-line)
+
+
 
 ;; (global-set-key (kbd "<C-tab>")   'previous-buffer)   
 ;; (global-set-key (kbd "<C-S-tab>")     'next-buffer)
@@ -224,6 +227,15 @@
 (define-key isearch-mode-map (kbd "<up>")   'isearch-ring-retreat)
 (define-key isearch-mode-map (kbd "<down>") 'isearch-ring-advance)
 (define-key isearch-mode-map (kbd "<C-v>")  'isearch-yank-kill)
+
+
+
+
+(add-hook 'compilation-mode-hook
+  (lambda ()
+    (define-key compilation-mode-map (kbd "<C-o>")   'ido-find-file)
+    ))
+
 
 (setq mylist (list "red" "blue" "yellow" "clear" "i-dont-know"))
 
