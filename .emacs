@@ -68,8 +68,8 @@
 
 
 (setq kill-ring-max        8)
-(setq mark-ring-max        3)
-(setq global-mark-ring-max 3)
+(setq mark-ring-max        6)
+(setq global-mark-ring-max 6)
 (setq-default set-mark-command-repeat-pop t)
 
 (setq initial-major-mode 'text-mode) ;; by default it's lisp mode...
@@ -164,12 +164,13 @@
 (global-set-key (kbd "C-.") '(lambda () (interactive)(insert "->")))
 (global-set-key (kbd "C-a") 'comment-line)
 
-(global-set-key [C-backspace]   '*backspace-word) ;;sub words
+;; this doesn't put word in kill ring... I never want that!
+(global-set-key [C-backspace]   '*backspace-word) 
 (global-set-key [C-delete]      '*delete-word)
 
 
-(global-set-key [M-backspace]   '*backspace-word) 
-(global-set-key [M-delete]      '*delete-word)
+(global-set-key [M-backspace]   'c-hungry-delete-forward) 
+(global-set-key [M-delete]      'c-hungry-delete-backwards)
 
 
 ;;(global-set-key (kbd "<home>")   'luis-back-to-indentation-or-beginning)
@@ -197,6 +198,7 @@
 
 
 (global-set-key (kbd "C-\\") 'luis-select-surrounding-scope)
+(global-set-key (kbd "M-\\") 'backward-up-list)
 
 (global-set-key (kbd "C-0")  'delete-window)
 (global-set-key (kbd "C-1")  'delete-other-windows)
@@ -207,8 +209,13 @@
 (global-set-key (kbd "<C-down>")  'luis-transpose-line-down)
 (global-set-key (kbd "<C-up>")    'luis-transpose-line-up)
 
-(global-set-key [(insert)]         'c-hungry-delete-forward)
-(global-set-key [(control insert)] 'c-hungry-delete-backwards)
+;; (global-set-key (kbd "<M-up>")     (lambda () (interactive) (hs-hide-block) (previous-line)))
+(global-set-key (kbd "<M-up>")     'hs-hide-block)
+(global-set-key (kbd "<M-down>")   'hs-show-block)
+(global-set-key (kbd "<M-C-down>") 'hs-show-all)
+
+(global-set-key [(insert)]         'delete-horizontal-space)
+(global-set-key [(control insert)] 'delete-blank-lines)
 
 (global-set-key (kbd "<S-SPC>") 'exchange-point-and-mark)
 (global-set-key (kbd "C-e") 'luis-copy-region-or-line) ;; copy
@@ -376,6 +383,8 @@ This command does not push text to `kill-ring'."
 (require 'cc-mode)
 (setq c-default-style "linux" c-basic-offset 4)
 (c-set-offset (quote cpp-macro) 0 nil)
+(c-set-offset (quote substatement) 0)
+(c-set-offset (quote substatement-open) 0)
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (font-lock-add-keywords 'c++-mode '(("defer" . font-lock-keyword-face)))
 
