@@ -1,11 +1,10 @@
 (add-to-list 'load-path "~/emacs/lisp/")
 
 (add-to-list 'custom-theme-load-path "~/emacs/themes/")
-(add-to-list 'custom-theme-load-path "~/emacs/themes/emacs-color-theme-solarized/")
-(add-to-list 'custom-theme-load-path "~/emacs/themes/everforest/")
-(add-to-list 'custom-theme-load-path "~/emacs/themes/gruvbox/")
+;; (add-to-list 'custom-theme-load-path "~/emacs/themes/emacs-color-theme-solarized/")
+;; (add-to-list 'custom-theme-load-path "~/emacs/themes/everforest/")
+;; (add-to-list 'custom-theme-load-path "~/emacs/themes/gruvbox/")
 
-;;(load-theme 'luis t)
 ;; (load-theme 'gruvbox-dark-hard t)
 (load-theme 'deeper-blue t)
 
@@ -13,6 +12,13 @@
 (setq find-program (expand-file-name (concat (file-name-as-directory "~") "emacs/find.exe")))
 (setq grep-find-template
       "find <D> <X> -type f -name '*.cpp' -exec grep <C> -nH -e <R> \\{\\} +")
+
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
+;; and `package-pinned-packages`. Most users will not need or want to do this.
+;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
 
 ;;(use-package scroll-on-jump
  ;; :config
@@ -67,10 +73,13 @@
 
 
 
-(setq kill-ring-max        8)
-(setq mark-ring-max        6)
-(setq global-mark-ring-max 6)
+(setq kill-ring-max        16)
+(setq mark-ring-max        8)
+(setq global-mark-ring-max 8)
 (setq-default set-mark-command-repeat-pop t)
+
+(setq scroll-step 10)
+(setq line-spacing 4)
 
 (setq initial-major-mode 'text-mode) ;; by default it's lisp mode...
 
@@ -165,12 +174,15 @@
 (global-set-key (kbd "C-a") 'comment-line)
 
 ;; this doesn't put word in kill ring... I never want that!
-(global-set-key [C-backspace]   '*backspace-word) 
-(global-set-key [C-delete]      '*delete-word)
+(global-set-key [C-backspace]   'my-backspace-word) 
+(global-set-key [C-delete]      'my-delete-word)
+
+(global-set-key [S-backspace]   'my-backspace-subword) 
+(global-set-key [S-delete]      'my-delete-subword)
 
 
-(global-set-key [M-backspace]   'c-hungry-delete-forward) 
-(global-set-key [M-delete]      'c-hungry-delete-backwards)
+(global-set-key [M-backspace]   'c-hungry-delete-backwards) 
+(global-set-key [M-delete]      'c-hungry-delete-forward)
 
 
 ;;(global-set-key (kbd "<home>")   'luis-back-to-indentation-or-beginning)
@@ -194,7 +206,11 @@
 
 (global-set-key (kbd "M-i") 'luis-open-braces)
 (global-set-key (kbd "M-k") 'luis-delete-line) ;; used to be kill-sentence
-(global-set-key (kbd "M-l") 'luis-duplicate-line) 
+(global-set-key (kbd "M-l") 'luis-duplicate-line)
+
+(global-set-key (kbd "C-S-k") 'luis-kill-start-of-line)
+
+
 
 
 (global-set-key (kbd "C-\\") 'luis-select-surrounding-scope)
@@ -206,13 +222,25 @@
 (global-set-key (kbd "C-2") (lambda () (interactive)(split-window-below) (other-window 1)))
 (global-set-key (kbd "C-3") (lambda () (interactive)(split-window-right) (other-window 1)))
 
+;; I always hit these by mistake
+(global-set-key (kbd "C-4")  'ignore)
+(global-set-key (kbd "C-5")  'ignore)
+(global-set-key (kbd "C-6")  'ignore)
+(global-set-key (kbd "C-7")  'ignore)
+(global-set-key (kbd "C-8")  'ignore)
+(global-set-key (kbd "C-9")  'ignore)
+
 (global-set-key (kbd "<C-down>")  'luis-transpose-line-down)
 (global-set-key (kbd "<C-up>")    'luis-transpose-line-up)
 
+
+(global-set-key (kbd "C-u")    'upcase-word)
+(global-set-key (kbd "C-d")    'downcase-word)
+
 ;; (global-set-key (kbd "<M-up>")     (lambda () (interactive) (hs-hide-block) (previous-line)))
-(global-set-key (kbd "<M-up>")     'hs-hide-block)
-(global-set-key (kbd "<M-down>")   'hs-show-block)
-(global-set-key (kbd "<M-C-down>") 'hs-show-all)
+;; (global-set-key (kbd "<M-up>")     'hs-hide-block)
+;; (global-set-key (kbd "<M-down>")   'hs-show-block)
+;; (global-set-key (kbd "<M-C-down>") 'hs-show-all)
 
 (global-set-key [(insert)]         'delete-horizontal-space)
 (global-set-key [(control insert)] 'delete-blank-lines)
@@ -225,7 +253,8 @@
 
 
 ;;isearch stuff
-(define-key isearch-mode-map (kbd "<C-return>")   'isearch-exit-leave-selection)
+(define-key isearch-mode-map (kbd "<C-return>")   'isearch-cancel)
+(define-key isearch-mode-map (kbd "<ESC>")   'isearch-cancel)
 ;;(define-key isearch-mode-map (kbd "<C-backspace>") 'isearch-clear-string)
 (define-key isearch-mode-map "\C-f" 'isearch-repeat-forward)
 (define-key isearch-mode-map "\C-r" 'isearch-repeat-backward)
@@ -240,9 +269,8 @@
 
 (add-hook 'compilation-mode-hook
   (lambda ()
-    (define-key compilation-mode-map (kbd "<C-o>")   'ido-find-file)
+    (define-key compilation-mode-map (kbd "C-o")   'ido-find-file)
     ))
-
 
 (setq mylist (list "red" "blue" "yellow" "clear" "i-dont-know"))
 
@@ -303,6 +331,14 @@ This command does not push text to `kill-ring'."
    (point)
    (progn (end-of-line 1) (point)))
   (delete-char 1))
+
+(defun luis-kill-start-of-line ()
+  "Delete text from current position to end of line char.
+This command does not push text to `kill-ring'."
+  (interactive)
+  (kill-region
+   (point)
+   (progn (beginning-of-line 1) (point))))
 
 (defun luis-select-surrounding-scope ()
   (interactive)
@@ -560,7 +596,7 @@ finding any suitable directory, it returns it instead of `to'"
 (add-hook 'c-mode-common-hook #'my-cc-mode-common-hook)
 
 
-(defun *delete-word (arg)
+(defun my-delete-word (arg)
   "Delete characters forward until encountering the end of a word.
 With argument, do this that many times.
 This command does not push text to `kill-ring'."
@@ -571,19 +607,62 @@ This command does not push text to `kill-ring'."
      (forward-word arg)
      (point))))
 
-(defun *backspace-word (arg)
+(defun my-backspace-word (arg)
   "Delete characters backward until encountering the beginning of a word.
 With argument, do this that many times.
 This command does not push text to `kill-ring'."
   (interactive "p")
-  (*delete-word (- arg)))
+  (my-delete-word (- arg)))
+
+(defun my-delete-subword (arg)
+  "Delete characters forward until encountering the end of a word.
+With argument, do this that many times.
+This command does not push text to `kill-ring'."
+  (interactive "p")
+  (setq superword-mode nil)
+  (delete-region
+   (point)
+   (progn
+     (forward-word arg)
+     (point)))
+  (setq superword-mode t))
+
+(defun my-backspace-subword (arg)
+  "Delete characters backward until encountering the beginning of a word.
+With argument, do this that many times.
+This command does not push text to `kill-ring'."
+  (interactive "p")
+  (my-delete-subword (- arg)))
+
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "d445c7b530713eac282ecdeea07a8fa59692c83045bf84dd112dd738c7bcad1d" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default)))
+   '("02d422e5b99f54bd4516d4157060b874d14552fe613ea7047c4a5cfa1288cf4f"
+     "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350"
+     "f053f92735d6d238461da8512b9c071a5ce3b9d972501f7a5e6682a90bf29725"
+     "56044c5a9cc45b6ec45c0eb28df100d3f0a576f18eef33ff8ff5d32bac2d9700"
+     "a6920ee8b55c441ada9a19a44e9048be3bfb1338d06fc41bce3819ac22e4b5a1"
+     "7c28419e963b04bf7ad14f3d8f6655c078de75e4944843ef9522dbecfcd8717d"
+     "014cb63097fc7dbda3edf53eb09802237961cbb4c9e9abd705f23b86511b0a69"
+     "ffafb0e9f63935183713b204c11d22225008559fa62133a69848835f4f4a758c"
+     "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5"
+     "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773"
+     "57a29645c35ae5ce1660d5987d3da5869b048477a7801ce7ab57bfb25ce12d3e"
+     "00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c"
+     "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3"
+     "39f0ac86b012062fed46469cc5ea1b00aa534db587ad21d55a9717a1bac99a27"
+     "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd"
+     "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3"
+     "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a"
+     "d445c7b530713eac282ecdeea07a8fa59692c83045bf84dd112dd738c7bcad1d"
+     "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98"
+     default))
+ '(package-selected-packages '(doom-themes solarized-theme)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
