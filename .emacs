@@ -189,8 +189,10 @@
 ;;(global-set-key (kbd "<home>")   'luis-back-to-indentation-or-beginning)
 (global-set-key (kbd "<home>")  'back-to-indentation)
 ;; (global-set-key (kbd "<S-home>") 'luis-back-to-indentation-or-beginning-selection) ;; not sure why this doesn't work
-(global-set-key (kbd "<C-home>") 'move-beginning-of-line)
-(global-set-key (kbd "<C-end>")  'move-end-of-line)
+
+
+(global-set-key (kbd "<C-home>") 'hs-show-all)
+(global-set-key (kbd "<C-end>")  'luis-toggle-code-fold)
 
 
 
@@ -369,6 +371,12 @@ This command does not push text to `kill-ring'."
       
       ))
 
+(defun luis-toggle-code-fold () (interactive)
+       (if (eq ?{ (preceding-char))
+           (left-char))
+       (hs-toggle-hiding)
+       )
+
 
 (defun luis-set-project-directory () (interactive)
        (setq luis-project-directory (read-from-minibuffer (concat "Change Project Directory from " luis-project-directory " to: ")))
@@ -544,6 +552,8 @@ finding any suitable directory, it returns it instead of `to'"
   (if (find-project-directory) (compile "build.bat"))
   (other-window 1))
 
+
+(add-hook 'prog-mode-hook 'hs-minor-mode)
 (add-hook 'prog-mode-hook 'superword-mode)
 
 
