@@ -7,7 +7,8 @@
 
 ;; (load-theme 'gruvbox-dark-hard t)
 ;; (load-theme 'deeper-blue t)
-(load-theme 'greener-blue t)
+;; (load-theme 'greener-blue t)
+(load-theme 'doom-gruvbox t)
 
 ;;(setq find-program "~/emacs/find.exe")
 (setq find-program (expand-file-name (concat (file-name-as-directory "~") "emacs/find.exe")))
@@ -153,6 +154,7 @@
 (setq luis-project-directory (pwd))
 (global-set-key (kbd "C-b") 'ido-switch-buffer)
 (global-set-key (kbd "C-;") 'other-window)
+(global-set-key (kbd "M-;") 'luis-view-buffer-in-other-window-or-split)
 
 (global-set-key (kbd "C-z")     'undo)
 (global-set-key (kbd "<M-f4>")  'kill-emacs)
@@ -249,7 +251,9 @@
 (global-set-key [(insert)]         'delete-horizontal-space)
 (global-set-key [(control insert)] 'delete-blank-lines)
 
-(global-set-key (kbd "<S-SPC>") 'exchange-point-and-mark)
+;; (global-set-key (kbd "<S-SPC>") 'exchange-point-and-mark)
+
+(global-set-key (kbd "<SPC>") 'luis-press-space)
 (global-set-key (kbd "C-e") 'luis-copy-region-or-line) ;; copy
 
 (global-set-key (kbd "C-v") 'yank)           ;;paste
@@ -288,6 +292,15 @@
   ;;(print (directory-files-recursively luis-project-directory "*.") (current-buffer))
   (print (directory-files-recursively luis-project-directory ".*\\.\\(cpp\\|h\\|c\\|hpp\\|txt\\)") (current-buffer))
   )
+
+(defun luis-view-buffer-in-other-window-or-split ()
+  "View the current buffer in the other window. If no other window, split and show it."
+  (interactive)
+  (let ((buf (current-buffer)))
+    (if (one-window-p)
+        (split-window-right)) ;; or split-window-below
+    (other-window 1)
+    (switch-to-buffer buf)))
                    
 (defun luis-duplicate-line()
   (interactive)
@@ -300,6 +313,13 @@
     (next-line 1)
     (yank)
     (move-to-column init_col)))
+
+(defun luis-press-space()
+  "Swap point and mark if transient-mark-mode is active and region is active. Otherwise insert space."
+  (interactive)
+  (if (and transient-mark-mode (region-active-p))
+      (exchange-point-and-mark)
+    (insert " ")))
 
 (defun luis-back-to-indentation-or-beginning () (interactive)
        (if (= (point) (progn (back-to-indentation) (point)))
@@ -654,7 +674,7 @@ This command does not push text to `kill-ring'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("e14e3f922d0d49897af4c5aec09349d3a9a9d62d9a02982ed6eb8a1278f0b531" "4eccaacd218dfdc3d8832f44498bb8891430259c8dfb824c548e62aff1aff41b" "0d6f7e092bdc03f7af8a1c98beb465659e0818a7c6b0293188940c36ac422e1c" "b16a32932d6af9a2132489733b8a059f41e9fffe23ccae5486c16dccadb82611" "32efa5aa1c5896a9906ea49c27cfabf3a6b51f804f131b1457c09a78108eac93" "7b45fd65347832b596cd5691c07ac381179c38c351886f7fff6e1df6eef789f9" "df6dfd55673f40364b1970440f0b0cb8ba7149282cf415b81aaad2d98b0f0290" "e8bd9bbf6506afca133125b0be48b1f033b1c8647c628652ab7a2fe065c10ef0" "48042425e84cd92184837e01d0b4fe9f912d875c43021c3bcb7eeb51f1be5710" "02d422e5b99f54bd4516d4157060b874d14552fe613ea7047c4a5cfa1288cf4f" "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350" "f053f92735d6d238461da8512b9c071a5ce3b9d972501f7a5e6682a90bf29725" "56044c5a9cc45b6ec45c0eb28df100d3f0a576f18eef33ff8ff5d32bac2d9700" "a6920ee8b55c441ada9a19a44e9048be3bfb1338d06fc41bce3819ac22e4b5a1" "7c28419e963b04bf7ad14f3d8f6655c078de75e4944843ef9522dbecfcd8717d" "014cb63097fc7dbda3edf53eb09802237961cbb4c9e9abd705f23b86511b0a69" "ffafb0e9f63935183713b204c11d22225008559fa62133a69848835f4f4a758c" "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5" "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "57a29645c35ae5ce1660d5987d3da5869b048477a7801ce7ab57bfb25ce12d3e" "00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c" "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "39f0ac86b012062fed46469cc5ea1b00aa534db587ad21d55a9717a1bac99a27" "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "d445c7b530713eac282ecdeea07a8fa59692c83045bf84dd112dd738c7bcad1d" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
+   '("c372798bb70eb1bb0e1853426af19ba7bb0adeebace94c83b2d4f5f87c6ea528" "691d671429fa6c6d73098fc6ff05d4a14a323ea0a18787daeb93fde0e48ab18b" "e14e3f922d0d49897af4c5aec09349d3a9a9d62d9a02982ed6eb8a1278f0b531" "4eccaacd218dfdc3d8832f44498bb8891430259c8dfb824c548e62aff1aff41b" "0d6f7e092bdc03f7af8a1c98beb465659e0818a7c6b0293188940c36ac422e1c" "b16a32932d6af9a2132489733b8a059f41e9fffe23ccae5486c16dccadb82611" "32efa5aa1c5896a9906ea49c27cfabf3a6b51f804f131b1457c09a78108eac93" "7b45fd65347832b596cd5691c07ac381179c38c351886f7fff6e1df6eef789f9" "df6dfd55673f40364b1970440f0b0cb8ba7149282cf415b81aaad2d98b0f0290" "e8bd9bbf6506afca133125b0be48b1f033b1c8647c628652ab7a2fe065c10ef0" "48042425e84cd92184837e01d0b4fe9f912d875c43021c3bcb7eeb51f1be5710" "02d422e5b99f54bd4516d4157060b874d14552fe613ea7047c4a5cfa1288cf4f" "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350" "f053f92735d6d238461da8512b9c071a5ce3b9d972501f7a5e6682a90bf29725" "56044c5a9cc45b6ec45c0eb28df100d3f0a576f18eef33ff8ff5d32bac2d9700" "a6920ee8b55c441ada9a19a44e9048be3bfb1338d06fc41bce3819ac22e4b5a1" "7c28419e963b04bf7ad14f3d8f6655c078de75e4944843ef9522dbecfcd8717d" "014cb63097fc7dbda3edf53eb09802237961cbb4c9e9abd705f23b86511b0a69" "ffafb0e9f63935183713b204c11d22225008559fa62133a69848835f4f4a758c" "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5" "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "57a29645c35ae5ce1660d5987d3da5869b048477a7801ce7ab57bfb25ce12d3e" "00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c" "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "39f0ac86b012062fed46469cc5ea1b00aa534db587ad21d55a9717a1bac99a27" "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "d445c7b530713eac282ecdeea07a8fa59692c83045bf84dd112dd738c7bcad1d" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
  '(package-selected-packages '(doom-themes solarized-theme)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
