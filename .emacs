@@ -5,10 +5,22 @@
 ;; (add-to-list 'custom-theme-load-path "~/emacs/themes/everforest/")
 ;; (add-to-list 'custom-theme-load-path "~/emacs/themes/gruvbox/")
 
+;; Avoid GC pauses during interaction
+(setq gc-cons-threshold 100000000) ;; 100 MB
+
+;; Don't resize windows frequently
+(setq frame-inhibit-implied-resize t)
+
+;; Faster redisplay
+(setq redisplay-dont-pause t)
+
+;; Make scrolling smoother
+(setq fast-but-imprecise-scrolling t)
+
 ;; (load-theme 'gruvbox-dark-hard t)
-;; (load-theme 'deeper-blue t)
+(load-theme 'deeper-blue t)
 ;; (load-theme 'greener-blue t)
-(load-theme 'doom-gruvbox t)
+;; (load-theme 'doom-gruvbox t)
 
 ;;(setq find-program "~/emacs/find.exe")
 (setq find-program (expand-file-name (concat (file-name-as-directory "~") "emacs/find.exe")))
@@ -253,7 +265,8 @@
 
 ;; (global-set-key (kbd "<S-SPC>") 'exchange-point-and-mark)
 
-(global-set-key (kbd "<SPC>") 'luis-press-space)
+(global-set-key (kbd "<SPC>")   'luis-press-space)
+(global-set-key (kbd "<M-SPC>") 'exchange-point-and-mark)
 (global-set-key (kbd "C-e") 'luis-copy-region-or-line) ;; copy
 
 (global-set-key (kbd "C-v") 'yank)           ;;paste
