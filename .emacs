@@ -205,8 +205,11 @@
 ;; (global-set-key (kbd "<S-home>") 'luis-back-to-indentation-or-beginning-selection) ;; not sure why this doesn't work
 
 
-(global-set-key (kbd "<C-home>") 'hs-show-all)
-(global-set-key (kbd "<C-end>")  'luis-toggle-code-fold)
+;; (global-set-key (kbd "<C-home>") 'hs-show-all)
+;; (global-set-key (kbd "<C-end>")  'luis-toggle-code-fold)
+
+(global-set-key (kbd "<C-home>") 'delete-horizontal-space)
+(global-set-key (kbd "<C-end>")  'align-to-mark)
 
 
 
@@ -250,10 +253,10 @@
 (global-set-key (kbd "<C-down>")  'luis-transpose-line-down)
 (global-set-key (kbd "<C-up>")    'luis-transpose-line-up)
 
-
-(global-set-key (kbd "M-u")    'universal-argument)
-(global-set-key (kbd "C-u")    'upcase-word)
+;; (global-set-key (kbd "M-u")    'universal-argument)
+;; (global-set-key (kbd "C-u")    'upcase-word)
 (global-set-key (kbd "C-d")    'downcase-word)
+(global-set-key (kbd "M-d")    'upcase-word)
 
 ;; (global-set-key (kbd "<M-up>")     (lambda () (interactive) (hs-hide-block) (previous-line)))
 ;; (global-set-key (kbd "<M-up>")     'hs-hide-block)
@@ -284,6 +287,18 @@
 (define-key isearch-mode-map (kbd "<up>")   'isearch-ring-retreat)
 (define-key isearch-mode-map (kbd "<down>") 'isearch-ring-advance)
 (define-key isearch-mode-map (kbd "<C-v>")  'isearch-yank-kill)
+
+
+(defalias 'rect-string 'string-rectangle)
+(defalias 'rect-kill   'kill-rectangle)
+(defalias 'rect-copy   'copy-rectangle-as-kill)
+(defalias 'rect-delete 'delete-rectangle)
+(defalias 'rect-paste  'yank-rectangle)
+(defalias 'rect-clear  'clear-rectangle)
+(defalias 'rect-prefix-space   'open-rectangle) ;; adds leading space to rect
+(defalias 'rect-prefix-numbers 'rectangle-number-lines)
+(defalias 'rect-prefix-string  'string-insert-rectangle)
+(defalias 'rect-remove-leading-whitespace 'delete-whitespace-rectangle)
 
 
 
@@ -442,7 +457,15 @@ This command does not push text to `kill-ring'."
 
 
 
-
+(defun align-to-mark ()
+  "Insert spaces to reach the column of the mark."
+  (interactive)
+  (let ((target-col (save-excursion
+                      (goto-char (mark))
+                      (current-column)))
+        (current-col (current-column)))
+    (when (< current-col target-col)
+      (insert (make-string (- target-col current-col) ?\s)))))
 
 
 (defun luis-open-braces ()
