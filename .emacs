@@ -27,6 +27,8 @@
 (setq grep-find-template
       "find <D> <X> -type f -name '*.cpp' -exec grep <C> -nH -e <R> \\{\\} +")
 
+(setq project-find-regexp 'ripgrep)
+
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 ;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
@@ -299,6 +301,135 @@
 (defalias 'rect-prefix-numbers 'rectangle-number-lines)
 (defalias 'rect-prefix-string  'string-insert-rectangle)
 (defalias 'rect-remove-leading-whitespace 'delete-whitespace-rectangle)
+
+
+(require 'project) 
+
+(defun proj-regex (pattern extensions)
+  "Search for PATTERN in the current project in files with specified EXTENSIONS.
+EXTENSIONS should be a comma-separated list like cpp,h,c,glsl,txt.
+Results go to the *grep* buffer."
+  (interactive
+   (let ((pattern (read-string "Pattern: "))
+         (exts (read-string "File extensions (comma-separated, default cpp,h,c,glsl,txt): "
+                            "cpp,h,c,glsl,txt")))
+     (list pattern exts)))
+  (let* ((proj (project-current t))
+         (root (car (project-roots proj)))
+         (default-directory root)
+         (ext-list (split-string extensions "," t))
+         ;; filter project files by extensions
+         (files (seq-filter
+                 (lambda (f)
+                   (seq-some (lambda (ext)
+                               (string-suffix-p (concat "." ext) f t))
+                             ext-list))
+                 (project-files proj)))
+         (files-str (mapconcat #'shell-quote-argument files " "))
+         (cmd (format "rg --no-heading --line-number --color never --no-config --no-ignore --text %s %s"
+                      (shell-quote-argument pattern)
+                      files-str)))
+    ;; run grep; initial command will be visible
+    (grep cmd)))
+
+(defun proj-find (pattern extensions)
+  "Search for PATTERN literally (not as regex) in project files with specified EXTENSIONS.
+EXTENSIONS should be a comma-separated list like cpp,h,c,glsl,txt.
+Results go to the *grep* buffer."
+  (interactive
+   (let ((pattern (read-string "Text to search (literal match): "))
+         (exts (read-string "File extensions (comma-separated, default cpp,h,c,glsl,txt): "
+                            "cpp,h,c,glsl,txt")))
+     (list pattern exts)))
+  (let* ((proj (project-current t))
+         (root (car (project-roots proj)))
+         (default-directory root)
+         (ext-list (split-string extensions "," t))
+         ;; filter project files by extensions
+         (files (seq-filter
+                 (lambda (f)
+                   (seq-some (lambda (ext)
+                               (string-suffix-p (concat "." ext) f t))
+                             ext-list))
+                 (project-files proj)))
+         (files-str (mapconcat #'shell-quote-argument files " "))
+         ;; add -F for literal match
+         (cmd (format "rg -F --no-heading --line-number --color never --no-config --no-ignore --text %s %s"
+                      (shell-quote-argument pattern)
+                      files-str)))
+    ;; run grep; command visible in *grep* buffer
+    (grep cmd)))
+
+;; there's prob a better way of doing this, but this is best chatgpt can make 
+
+
+(defun my/subword->name-regex (raw)
+  "Convert RAW input into a function-name regex.
+Leading space disables prefix expansion.
+Trailing space disables suffix expansion."
+  (let* ((no-prefix (string-prefix-p " " raw))
+         (no-suffix (string-suffix-p " " raw))
+         (core (string-trim raw)))
+    (concat
+     (unless no-prefix "\\w*")
+     (regexp-quote core)
+     (unless no-suffix "\\w*"))))
+
+;;;; ----------------------------------------
+;;;; Main search command
+;;;; ----------------------------------------
+
+(defun proj-function ()
+  "Find C/C++-style function declarations or definitions in the project."
+  (interactive)
+  (let* ((proj (project-current t))
+         (roots (project-roots proj))
+         (root (car roots))
+
+         ;; prompts
+         (raw-name (read-string "Function name (spaces anchor subword): "))
+         (exts (split-string
+                (read-string "File extensions (space-separated): "
+                             "cpp h c glsl")
+                " +" t))
+         (kind (read-char-choice
+                "Kind [d=definition, e=declaration, b=both]: "
+                '(?d ?e ?b)))
+
+         ;; name regex
+         (name-re (my/subword->name-regex raw-name))
+
+         ;; ending selector
+         (ending
+          (pcase kind
+            (?d "{")
+            (?e ";")
+            (?b "[{;]")))
+
+         ;; file globs
+         (globs
+          (mapconcat
+           (lambda (e) (format "--include=*.%s" e))
+           exts
+           " "))
+
+         ;; full regex
+         (regex
+          (format
+           "^[[:space:]]*[a-zA-Z_][a-zA-Z0-9_:<>*& ]+[[:space:]]+([a-zA-Z_][a-zA-Z0-9_:]*::)?%s[[:space:]]*\\([^;]*\\)[[:space:]]*%s"
+           name-re
+           ending))
+
+         ;; grep command
+         (cmd
+          (format
+           "grep -R -n -E %s -e \"%s\" \"%s\""
+           globs
+           regex
+           root)))
+
+    ;; run grep
+    (grep cmd)))
 
 
 
