@@ -304,6 +304,12 @@
 
 
 (require 'project) 
+(require 'xref)
+(require 's)
+(require 'dash)
+(require 'popup)
+(require 'dumb-jump)
+(add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
 
 (defun proj-regex (pattern extensions)
   "Search for PATTERN in the current project in files with specified EXTENSIONS.
@@ -849,3 +855,4 @@ This command does not push text to `kill-ring'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
