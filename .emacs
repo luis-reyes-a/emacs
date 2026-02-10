@@ -1,9 +1,7 @@
 (add-to-list 'load-path "~/emacs/lisp/")
-
+(add-to-list 'load-path "~/emacs/lisp/consult/")
 (add-to-list 'custom-theme-load-path "~/emacs/themes/")
-;; (add-to-list 'custom-theme-load-path "~/emacs/themes/emacs-color-theme-solarized/")
-;; (add-to-list 'custom-theme-load-path "~/emacs/themes/everforest/")
-;; (add-to-list 'custom-theme-load-path "~/emacs/themes/gruvbox/")
+
 
 ;; Avoid GC pauses during interaction
 (setq gc-cons-threshold 100000000) ;; 100 MB
@@ -18,74 +16,48 @@
 (setq fast-but-imprecise-scrolling t)
 
 ;; (load-theme 'gruvbox-dark-hard t)
-(load-theme 'deeper-blue t)
+;; (load-theme 'deeper-blue t)
+;; (set-cursor-color "tan2")
+(load-theme 'doom-monokai-classic t)
+
 ;; (load-theme 'greener-blue t)
-;; (load-theme 'doom-gruvbox t)
 
 ;;(setq find-program "~/emacs/find.exe")
-(setq find-program (expand-file-name (concat (file-name-as-directory "~") "emacs/find.exe")))
-(setq grep-find-template
-      "find <D> <X> -type f -name '*.cpp' -exec grep <C> -nH -e <R> \\{\\} +")
+;; (setq find-program (expand-file-name (concat (file-name-as-directory "~") "emacs/find.exe")))
+;; (setq grep-find-template
+      ;; "find <D> <X> -type f -name '*.cpp' -exec grep <C> -nH -e <R> \\{\\} +")
 
 (setq project-find-regexp 'ripgrep)
 
 (require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 ;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
 ;; and `package-pinned-packages`. Most users will not need or want to do this.
 ;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
 
-;;(use-package scroll-on-jump
- ;; :config
- ;;(setq scroll-on-jump-duration 0.6))
+(require 'vertico)
+(setq vertico-cycle t)
+(vertico-mode 1)
 
-;; find-exe usuage
-;; Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
-;; 
-;; Default path is the current directory; default expression is -print.
-;; Expression may consist of: operators, options, tests, and actions.
-;; 
-;; Operators (decreasing precedence; -and is implicit where no others are given):
-      ;; ( EXPR )   ! EXPR   -not EXPR   EXPR1 -a EXPR2   EXPR1 -and EXPR2
-      ;; EXPR1 -o EXPR2   EXPR1 -or EXPR2   EXPR1 , EXPR2
-;; 
-;; Positional options (always true):
-      ;; -daystart -follow -nowarn -regextype -warn
-;; 
-;; Normal options (always true, specified before other expressions):
-      ;; -depth -files0-from FILE -maxdepth LEVELS -mindepth LEVELS
-       ;; -mount -noleaf -xdev -ignore_readdir_race -noignore_readdir_race
-;; 
-;; Tests (N can be +N or -N or N):
-      ;; -amin N -anewer FILE -atime N -cmin N -cnewer FILE -context CONTEXT
-      ;; -ctime N -empty -false -fstype TYPE -gid N -group NAME -ilname PATTERN
-      ;; -iname PATTERN -inum N -iwholename PATTERN -iregex PATTERN
-      ;; -links N -lname PATTERN -mmin N -mtime N -name PATTERN -newer FILE
-      ;; -nouser -nogroup -path PATTERN -perm [-/]MODE -regex PATTERN
-      ;; -readable -writable -executable
-      ;; -wholename PATTERN -size N[bcwkMG] -true -type [bcdpflsD] -uid N
-      ;; -used N -user NAME -xtype [bcdpfls]
-;; 
-;; Actions:
-      ;; -delete -print0 -printf FORMAT -fprintf FILE FORMAT -print
-      ;; -fprint0 FILE -fprint FILE -ls -fls FILE -prune -quit
-      ;; -exec COMMAND ; -exec COMMAND {} + -ok COMMAND ;
-      ;; -execdir COMMAND ; -execdir COMMAND {} + -okdir COMMAND ;
-;; 
-;; Other common options:
-      ;; --help                   display this help and exit
-      ;; --version                output version information and exit
-;; 
-;; Valid arguments for -D:
-;; exec, opt, rates, search, stat, time, tree, all, help
-;; Use '-D help' for a description of the options, or see find(1)
-;; 
-;; Please see also the documentation at https://www.gnu.org/software/findutils/.
-;; You can report (and track progress on fixing) bugs in the "find"
-;; program via the GNU findutils bug-reporting page at
-;; https://savannah.gnu.org/bugs/?group=findutils or, if
-;; you have no web access, by sending email to <bug-findutils@gnu.org>.
+(require 'marginalia)
+(marginalia-mode 1)
+
+
+(require 'consult)
+(setq consult-find-command "D:/Git/usr/bin/find.exe")
+;; (setq consult-find-args '("%d" "-type" "f" "-iname" "%s"))
+
+(require 'orderless)
+
+(setq completion-styles '(orderless basic))
+(setq completion-category-defaults nil)
+(setq completion-category-overrides
+      '((file (styles orderless))
+        (command (styles orderless))))
+
+(setq orderless-matching-styles '(orderless-literal))
+
 
 
 
@@ -137,6 +109,11 @@
 
 ;; use spaces instead of tabs when reindenting text
 (setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)))
+
 
 (ido-mode t)
 (defun bind-ido-keys ()
@@ -161,18 +138,33 @@
 (global-set-key (kbd "M-o")   'ff-find-other-file)
 ;; (global-set-key (kbd "C-p")   'luis-project-find-relevant-file)
 ;; (global-set-key (kbd "M-p")   'luis-project-find-relevant-buffer)
-(global-set-key (kbd "C-p")   'git-find-file)
+;;(global-set-key (kbd "C-p")   'git-find-file)
+(global-set-key (kbd "C-p")   'project-find-file)
+(global-set-key (kbd "M-p")   'consult-ripgrep)
+(global-set-key (kbd "C-M-p") 'consult-fd)
+
+(global-set-key (kbd "C-`")   'consult-ripgrep)
+
+
 
 (global-set-key (kbd "C-M-p") 'luis-set-project-directory)
 
-(setq luis-project-directory (pwd))
-(global-set-key (kbd "C-b") 'ido-switch-buffer)
+;; (setq luis-project-directory (pwd))
+;; (global-set-key (kbd "C-b") 'ido-switch-buffer)
+(global-set-key (kbd "C-b") 'consult-buffer)
+(global-set-key (kbd "M-b") 'consult-buffer-other-window)
+
 (global-set-key (kbd "C-;") 'other-window)
 (global-set-key (kbd "M-;") 'luis-view-buffer-in-other-window-or-split)
 
 (global-set-key (kbd "C-z")     'undo)
 (global-set-key (kbd "<M-f4>")  'kill-emacs)
-(global-set-key (kbd "<f1>")    'goto-line)
+(global-set-key (kbd "<f1>")    'consult-goto-line)
+
+;; <f3> defaults to begin defining macro
+;; <f4> defaults to end defining macro and execute
+
+
 (global-set-key (kbd "<f5>")    'make-without-asking)
 
 (global-set-key (kbd "C-q") 'query-replace)
@@ -185,7 +177,9 @@
 
 
 
-(global-set-key (kbd "C-j") 'dabbrev-expand) ;; best emacs command by far
+(global-set-key (kbd "C-j") 'dabbrev-expand)     ;; best emacs command by far
+(global-set-key (kbd "M-j") 'dabbrev-completion) 
+
 (global-set-key (kbd "C-,") '(lambda () (interactive)(insert "_")))
 (global-set-key (kbd "C-.") '(lambda () (interactive)(insert "->")))
 (global-set-key (kbd "C-a") 'comment-line)
@@ -218,13 +212,17 @@
 ;; (global-set-key (kbd "<C-tab>")   'previous-buffer)   
 ;; (global-set-key (kbd "<C-S-tab>")     'next-buffer)
 
-(global-set-key (kbd "<C-tab>") 'ido-switch-buffer)
+(global-set-key (kbd "<C-tab>") 'consult-buffer)
 
+(global-set-key (kbd "C-n")  'consult-line)
+(global-set-key (kbd "M-n")  'consult-line-multi)
 
 (global-set-key (kbd "C-f") 'isearch-forward)
 (global-set-key (kbd "C-r") 'isearch-backward)
 (global-set-key (kbd "M-f") 'isearch-forward-regexp)
 (global-set-key (kbd "M-r") 'isearch-backward-regexp)
+
+
 
 (global-set-key (kbd "M-i") 'luis-open-braces)
 (global-set-key (kbd "M-k") 'luis-delete-line) ;; used to be kill-sentence
@@ -252,21 +250,39 @@
 (global-set-key (kbd "C-8")  'ignore)
 (global-set-key (kbd "C-9")  'ignore)
 
-(global-set-key (kbd "<C-down>")  'luis-transpose-line-down)
-(global-set-key (kbd "<C-up>")    'luis-transpose-line-up)
+
 
 ;; (global-set-key (kbd "M-u")    'universal-argument)
 ;; (global-set-key (kbd "C-u")    'upcase-word)
 (global-set-key (kbd "C-d")    'downcase-word)
 (global-set-key (kbd "M-d")    'upcase-word)
-
 ;; (global-set-key (kbd "<M-up>")     (lambda () (interactive) (hs-hide-block) (previous-line)))
 ;; (global-set-key (kbd "<M-up>")     'hs-hide-block)
 ;; (global-set-key (kbd "<M-down>")   'hs-show-block)
 ;; (global-set-key (kbd "<M-C-down>") 'hs-show-all)
 
-(global-set-key [(insert)]         'delete-horizontal-space)
+(global-set-key (kbd "<C-down>")  'forward-paragraph)
+(global-set-key (kbd "<C-up>")    'backward-paragraph)
+
+(global-set-key (kbd "M-{")  'backward-sexp)
+(global-set-key (kbd "M-}")  'forward-sexp)
+(global-set-key (kbd "M-[")  'luis-transpose-line-up)
+(global-set-key (kbd "M-]")  'luis-transpose-line-down)
+
+(global-set-key (kbd "<M-up>")     'scroll-up-line)
+(global-set-key (kbd "<M-down>")   'scroll-down-line)
+(global-set-key (kbd "<M-left>")   'consult-global-mark)
+(global-set-key (kbd "<M-right>")  'consult-mark)
+
+
+;; list pastes and pick to insert. If had just pasted, it will replace it.
+(global-set-key (kbd "C-M-y")  'consult-yank-replace)
+
+
+ 
+
 (global-set-key [(control insert)] 'delete-blank-lines)
+(global-set-key [(insert)]         'delete-horizontal-space)
 
 ;; (global-set-key (kbd "<S-SPC>") 'exchange-point-and-mark)
 
@@ -303,13 +319,17 @@
 (defalias 'rect-remove-leading-whitespace 'delete-whitespace-rectangle)
 
 
-(require 'project) 
+(require 'project)
 (require 'xref)
 (require 's)
 (require 'dash)
 (require 'popup)
 (require 'dumb-jump)
+
+
 (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+
+
 
 (defun proj-regex (pattern extensions)
   "Search for PATTERN in the current project in files with specified EXTENSIONS.
@@ -847,12 +867,47 @@ This command does not push text to `kill-ring'."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("c372798bb70eb1bb0e1853426af19ba7bb0adeebace94c83b2d4f5f87c6ea528" "691d671429fa6c6d73098fc6ff05d4a14a323ea0a18787daeb93fde0e48ab18b" "e14e3f922d0d49897af4c5aec09349d3a9a9d62d9a02982ed6eb8a1278f0b531" "4eccaacd218dfdc3d8832f44498bb8891430259c8dfb824c548e62aff1aff41b" "0d6f7e092bdc03f7af8a1c98beb465659e0818a7c6b0293188940c36ac422e1c" "b16a32932d6af9a2132489733b8a059f41e9fffe23ccae5486c16dccadb82611" "32efa5aa1c5896a9906ea49c27cfabf3a6b51f804f131b1457c09a78108eac93" "7b45fd65347832b596cd5691c07ac381179c38c351886f7fff6e1df6eef789f9" "df6dfd55673f40364b1970440f0b0cb8ba7149282cf415b81aaad2d98b0f0290" "e8bd9bbf6506afca133125b0be48b1f033b1c8647c628652ab7a2fe065c10ef0" "48042425e84cd92184837e01d0b4fe9f912d875c43021c3bcb7eeb51f1be5710" "02d422e5b99f54bd4516d4157060b874d14552fe613ea7047c4a5cfa1288cf4f" "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350" "f053f92735d6d238461da8512b9c071a5ce3b9d972501f7a5e6682a90bf29725" "56044c5a9cc45b6ec45c0eb28df100d3f0a576f18eef33ff8ff5d32bac2d9700" "a6920ee8b55c441ada9a19a44e9048be3bfb1338d06fc41bce3819ac22e4b5a1" "7c28419e963b04bf7ad14f3d8f6655c078de75e4944843ef9522dbecfcd8717d" "014cb63097fc7dbda3edf53eb09802237961cbb4c9e9abd705f23b86511b0a69" "ffafb0e9f63935183713b204c11d22225008559fa62133a69848835f4f4a758c" "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5" "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773" "57a29645c35ae5ce1660d5987d3da5869b048477a7801ce7ab57bfb25ce12d3e" "00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c" "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3" "39f0ac86b012062fed46469cc5ea1b00aa534db587ad21d55a9717a1bac99a27" "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd" "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3" "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a" "d445c7b530713eac282ecdeea07a8fa59692c83045bf84dd112dd738c7bcad1d" "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98" default))
- '(package-selected-packages '(doom-themes solarized-theme)))
+   '("7964b513f8a2bb14803e717e0ac0123f100fb92160dcf4a467f530868ebaae3e"
+     "c8c4baac2988652a760554e0e7ce11a0fe0f8468736be2b79355c9d9cc14b751"
+     "10e5d4cc0f67ed5cafac0f4252093d2119ee8b8cb449e7053273453c1a1eb7cc"
+     "2b20b4633721cc23869499012a69894293d49e147feeb833663fdc968f240873"
+     "c372798bb70eb1bb0e1853426af19ba7bb0adeebace94c83b2d4f5f87c6ea528"
+     "691d671429fa6c6d73098fc6ff05d4a14a323ea0a18787daeb93fde0e48ab18b"
+     "e14e3f922d0d49897af4c5aec09349d3a9a9d62d9a02982ed6eb8a1278f0b531"
+     "4eccaacd218dfdc3d8832f44498bb8891430259c8dfb824c548e62aff1aff41b"
+     "0d6f7e092bdc03f7af8a1c98beb465659e0818a7c6b0293188940c36ac422e1c"
+     "b16a32932d6af9a2132489733b8a059f41e9fffe23ccae5486c16dccadb82611"
+     "32efa5aa1c5896a9906ea49c27cfabf3a6b51f804f131b1457c09a78108eac93"
+     "7b45fd65347832b596cd5691c07ac381179c38c351886f7fff6e1df6eef789f9"
+     "df6dfd55673f40364b1970440f0b0cb8ba7149282cf415b81aaad2d98b0f0290"
+     "e8bd9bbf6506afca133125b0be48b1f033b1c8647c628652ab7a2fe065c10ef0"
+     "48042425e84cd92184837e01d0b4fe9f912d875c43021c3bcb7eeb51f1be5710"
+     "02d422e5b99f54bd4516d4157060b874d14552fe613ea7047c4a5cfa1288cf4f"
+     "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350"
+     "f053f92735d6d238461da8512b9c071a5ce3b9d972501f7a5e6682a90bf29725"
+     "56044c5a9cc45b6ec45c0eb28df100d3f0a576f18eef33ff8ff5d32bac2d9700"
+     "a6920ee8b55c441ada9a19a44e9048be3bfb1338d06fc41bce3819ac22e4b5a1"
+     "7c28419e963b04bf7ad14f3d8f6655c078de75e4944843ef9522dbecfcd8717d"
+     "014cb63097fc7dbda3edf53eb09802237961cbb4c9e9abd705f23b86511b0a69"
+     "ffafb0e9f63935183713b204c11d22225008559fa62133a69848835f4f4a758c"
+     "7f1d414afda803f3244c6fb4c2c64bea44dac040ed3731ec9d75275b9e831fe5"
+     "51ec7bfa54adf5fff5d466248ea6431097f5a18224788d0bd7eb1257a4f7b773"
+     "57a29645c35ae5ce1660d5987d3da5869b048477a7801ce7ab57bfb25ce12d3e"
+     "00445e6f15d31e9afaa23ed0d765850e9cd5e929be5e8e63b114a3346236c44c"
+     "4c56af497ddf0e30f65a7232a8ee21b3d62a8c332c6b268c81e9ea99b11da0d3"
+     "39f0ac86b012062fed46469cc5ea1b00aa534db587ad21d55a9717a1bac99a27"
+     "98ef36d4487bf5e816f89b1b1240d45755ec382c7029302f36ca6626faf44bbd"
+     "ba323a013c25b355eb9a0550541573d535831c557674c8d59b9ac6aa720c21d3"
+     "a5270d86fac30303c5910be7403467662d7601b821af2ff0c4eb181153ebfc0a"
+     "d445c7b530713eac282ecdeea07a8fa59692c83045bf84dd112dd738c7bcad1d"
+     "7b8f5bbdc7c316ee62f271acf6bcd0e0b8a272fdffe908f8c920b0ba34871d98"
+     default))
+ '(package-selected-packages '(consult doom-themes marginalia solarized-theme vertico)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
-
+ '(font-lock-comment-face ((t (:foreground "light slate gray" :slant normal))))
+ '(font-lock-type-face ((t (:foreground "#66D9EF" :slant normal))))
+ '(mode-line-buffer-id ((t (:foreground "tan2" :weight bold)))))
