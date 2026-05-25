@@ -22,6 +22,11 @@
 
 ;; (load-theme 'greener-blue t)
 
+(setq grep-program "rg")
+(setq grep-command "rg --color=always --no-heading --line-number -t c -t cpp -t h -t txt -t markdown  .")
+;; (setq grep-template "rg --color=always --no-heading --line-number <R> -t c -t cpp -t h -t txt -t markdown -g \"*.glsl\" .")
+(setq grep-use-null-device nil) ;; windows specific
+
 ;;(setq find-program "~/emacs/find.exe")
 ;; (setq find-program (expand-file-name (concat (file-name-as-directory "~") "emacs/find.exe")))
 ;; (setq grep-find-template
@@ -93,6 +98,7 @@
 (setq completions-format 'vertical)
 (setq-default line-spacing 2)
 
+(setq mouse-wheel-scroll-amount '(6 ((shift) . 2) ((control) . nil)))
 (setq mouse-wheel-progressive-speed nil)
 
 ;we add this bc otherwise reloading this file within emacs keeps splitting the window right
@@ -166,6 +172,7 @@
 
 
 (global-set-key (kbd "<f5>")    'make-without-asking)
+(global-set-key (kbd "<f6>")    'grep)
 
 (global-set-key (kbd "C-q") 'query-replace)
 (global-set-key (kbd "M-q") 'query-replace)
@@ -646,6 +653,18 @@ This command does not push text to `kill-ring'."
 (c-set-offset (quote substatement-open) 0)
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (font-lock-add-keywords 'c++-mode '(("defer" . font-lock-keyword-face)))
+
+(setq electric-indent-chars '(?\n))
+(setq electric-layout-rules nil)
+(setq c-electric-flag nil)
+
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            ;; Force characters to JUST insert themselves
+            (dolist (k '(";" "(" ")" "}" "]" ","))
+              (define-key (current-local-map) k #'self-insert-command))))
+
+
 
 ;;NOTE this was taken from Handmade Hero, thank you Casey!
 (require 'compile)
